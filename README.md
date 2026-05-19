@@ -55,7 +55,19 @@ npm install @blaxer/node-red-contrib-workspace-banner
 
 ## Screenshots
 
-(Add screenshots here)
+
+
+### Init
+
+![Init Status](docs/images/Banner-init.png)
+
+---
+
+### Alarm Mode
+
+![Alarm Mode](docs/images/Banner-alarm.png)
+
+---
 
 ## License
 
