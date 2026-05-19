@@ -1,0 +1,53 @@
+[
+    {
+        "id": "9806b93f7afcf0f1",
+        "type": "tab",
+        "label": "Banner Test",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "fdee73bfb76a0fae",
+        "type": "workspace-banner",
+        "z": "9806b93f7afcf0f1",
+        "name": "",
+        "textColor": "",
+        "backgroundColor": "",
+        "fontSize": "",
+        "fontFamily": "",
+        "showLed": true,
+        "ledColor": "",
+        "ledSize": "",
+        "x": 472,
+        "y": 233,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4b829048ce601733",
+        "type": "inject",
+        "z": "9806b93f7afcf0f1",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"text\":\"ALARM ACTIVE\",\"textColor\":\"#ffffff\",\"backgroundColor\":\"#aa0000\",\"fontSize\":28,\"fontFamily\":\"Verdana\",\"showLed\":true,\"ledColor\":\"#ff0000\",\"ledSize\":20}",
+        "payloadType": "json",
+        "x": 212,
+        "y": 233,
+        "wires": [
+            [
+                "fdee73bfb76a0fae"
+            ]
+        ]
+    }
+]

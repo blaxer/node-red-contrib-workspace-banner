@@ -1,0 +1,353 @@
+<script type="text/javascript">
+
+(function() {
+
+    const banners = {};
+
+    function workspaceContainer() {
+
+        return document.querySelector(
+            "#red-ui-workspace-chart"
+        );
+    }
+
+    function createBanner(id) {
+
+        if (banners[id]) {
+            return banners[id];
+        }
+
+        const root = document.createElement("div");
+
+        root.style.position = "absolute";
+
+        root.style.display = "flex";
+
+        root.style.alignItems = "center";
+
+        root.style.gap = "10px";
+
+        root.style.padding = "8px 14px";
+
+        root.style.borderRadius = "10px";
+
+        root.style.zIndex = 1000;
+
+        root.style.cursor = "move";
+
+        root.style.userSelect = "none";
+
+        root.style.boxShadow =
+            "0 3px 10px rgba(0,0,0,0.45)";
+
+        root.style.pointerEvents = "auto";
+
+        const led = document.createElement("div");
+
+        led.style.borderRadius = "50%";
+
+        led.style.flexShrink = "0";
+
+        const text = document.createElement("div");
+
+        root.appendChild(led);
+
+        root.appendChild(text);
+
+        workspaceContainer().appendChild(root);
+
+        banners[id] = {
+
+            root,
+            led,
+            text,
+            x: 0,
+            y: 0
+        };
+
+        enableDragging(id);
+
+        return banners[id];
+    }
+
+    function applyState(id, state) {
+
+        const b = createBanner(id);
+
+        b.text.innerText = state.text || "";
+
+        b.text.style.color =
+            state.textColor;
+
+        b.text.style.fontSize =
+            state.fontSize + "px";
+
+        b.text.style.fontFamily =
+            state.fontFamily;
+
+        b.text.style.fontWeight =
+            "bold";
+
+        b.root.style.background =
+            state.backgroundColor;
+
+        if (state.showLed) {
+
+            b.led.style.display = "block";
+
+            b.led.style.width =
+                state.ledSize + "px";
+
+            b.led.style.height =
+                state.ledSize + "px";
+
+            b.led.style.background =
+                state.ledColor;
+
+            b.led.style.boxShadow =
+                "0 0 12px " + state.ledColor;
+
+        } else {
+
+            b.led.style.display = "none";
+        }
+
+        b.x = state.x || 0;
+
+        b.y = state.y || 0;
+
+        updatePosition(id);
+    }
+
+    function updatePosition(id) {
+
+        const b = banners[id];
+
+        if (!b) return;
+
+        b.root.style.left =
+            b.x + "px";
+
+        b.root.style.top =
+            b.y + "px";
+    }
+
+    function enableDragging(id) {
+
+        const b = banners[id];
+
+        let dragging = false;
+
+        let offsetX = 0;
+
+        let offsetY = 0;
+
+        b.root.addEventListener(
+            "mousedown",
+            function(e) {
+
+                dragging = true;
+
+                offsetX =
+                    e.clientX - b.x;
+
+                offsetY =
+                    e.clientY - b.y;
+
+                e.preventDefault();
+
+                e.stopPropagation();
+            }
+        );
+
+        document.addEventListener(
+            "mousemove",
+            function(e) {
+
+                if (!dragging) return;
+
+                b.x =
+                    e.clientX - offsetX;
+
+                b.y =
+                    e.clientY - offsetY;
+
+                updatePosition(id);
+            }
+        );
+
+        document.addEventListener(
+            "mouseup",
+            function() {
+
+                dragging = false;
+            }
+        );
+    }
+
+    RED.comms.subscribe(
+        "workspace-banner/update",
+        function(topic, msg) {
+
+            applyState(
+                msg.id,
+                msg.state
+            );
+        }
+    );
+
+    RED.comms.subscribe(
+        "workspace-banner/remove",
+        function(topic, msg) {
+
+            const b = banners[msg.id];
+
+            if (!b) return;
+
+            b.root.remove();
+
+            delete banners[msg.id];
+        }
+    );
+
+})();
+
+RED.nodes.registerType(
+    'workspace-banner',
+    {
+        category: 'display',
+
+        color: '#4B8BBE',
+
+        defaults: {
+
+            name: {
+                value: ""
+            },
+
+            text: {
+                value: "Banner"
+            },
+
+            textColor: {
+                value: "#FFFFFF"
+            },
+
+            backgroundColor: {
+                value: "#222222"
+            },
+
+            fontSize: {
+                value: 24
+            },
+
+            fontFamily: {
+                value: "Arial"
+            },
+
+            showLed: {
+                value: true
+            },
+
+            ledColor: {
+                value: "#00FF00"
+            },
+
+            ledSize: {
+                value: 16
+            },
+
+            bannerX: {
+                value: 100
+            },
+
+            bannerY: {
+                value: 100
+            }
+        },
+
+        inputs: 1,
+
+        outputs: 1,
+
+        icon: "font-awesome/fa-television",
+
+        label: function() {
+
+            return this.name ||
+                   "workspace-banner";
+        }
+    }
+);
+</script>
+
+<script type="text/html"
+        data-template-name="workspace-banner">
+
+<div class="form-row">
+<label>Name</label>
+<input type="text"
+       id="node-input-name">
+</div>
+
+<div class="form-row">
+<label>Text</label>
+<input type="text"
+       id="node-input-text">
+</div>
+
+<div class="form-row">
+<label>Text Color</label>
+<input type="text"
+       id="node-input-textColor">
+</div>
+
+<div class="form-row">
+<label>Background</label>
+<input type="text"
+       id="node-input-backgroundColor">
+</div>
+
+<div class="form-row">
+<label>Font Size</label>
+<input type="number"
+       id="node-input-fontSize">
+</div>
+
+<div class="form-row">
+<label>Font</label>
+<input type="text"
+       id="node-input-fontFamily">
+</div>
+
+<div class="form-row">
+<label>Show LED</label>
+<input type="checkbox"
+       id="node-input-showLed">
+</div>
+
+<div class="form-row">
+<label>LED Color</label>
+<input type="text"
+       id="node-input-ledColor">
+</div>
+
+<div class="form-row">
+<label>LED Size</label>
+<input type="number"
+       id="node-input-ledSize">
+</div>
+
+<div class="form-row">
+<label>X</label>
+<input type="number"
+       id="node-input-bannerX">
+</div>
+
+<div class="form-row">
+<label>Y</label>
+<input type="number"
+       id="node-input-bannerY">
+</div>
+
+</script>
