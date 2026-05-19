@@ -10,23 +10,38 @@ module.exports = function(RED) {
 
             text: config.text || "Banner",
 
-            textColor: config.textColor || "#FFFFFF",
+            textColor:
+                config.textColor || "#FFFFFF",
 
-            backgroundColor: config.backgroundColor || "#222222",
+            backgroundColor:
+                config.backgroundColor || "#222222",
 
-            fontSize: Number(config.fontSize || 24),
+            fontSize:
+                Number(config.fontSize || 24),
 
-            fontFamily: config.fontFamily || "Arial",
+            fontFamily:
+                config.fontFamily || "Arial",
 
-            showLed: config.showLed !== false,
+            showLed:
+                config.showLed !== false,
 
-            ledColor: config.ledColor || "#00FF00",
+            ledColor:
+                config.ledColor || "#00FF00",
 
-            ledSize: Number(config.ledSize || 16),
+            ledSize:
+                Number(config.ledSize || 16),
 
-            x: Number(config.bannerX || 0),
+            x:
+                Number(config.bannerX || 100),
 
-            y: Number(config.bannerY || 0)
+            y:
+                Number(config.bannerY || 100),
+
+            tabId:
+                node.z,
+
+            currentTabOnly:
+                config.currentTabOnly !== false
         };
 
         function publishState() {
@@ -41,69 +56,77 @@ module.exports = function(RED) {
             );
         }
 
-        node.on("input", function(msg, send, done) {
+        node.on(
+            "input",
+            function(msg, send, done) {
 
-            const p = msg.payload || {};
+                const p = msg.payload || {};
 
-            function pick(name) {
+                function pick(name) {
 
-                if (msg[name] !== undefined) {
-                    return msg[name];
+                    if (msg[name] !== undefined) {
+                        return msg[name];
+                    }
+
+                    if (p[name] !== undefined) {
+                        return p[name];
+                    }
+
+                    return undefined;
                 }
 
-                if (p[name] !== undefined) {
-                    return p[name];
-                }
+                const fields = [
 
-                return undefined;
+                    "text",
+                    "textColor",
+                    "backgroundColor",
+                    "fontSize",
+                    "fontFamily",
+                    "showLed",
+                    "ledColor",
+                    "ledSize",
+                    "x",
+                    "y",
+                    "currentTabOnly"
+                ];
+
+                fields.forEach(field => {
+
+                    const v = pick(field);
+
+                    if (v !== undefined) {
+
+                        node.state[field] = v;
+                    }
+                });
+
+                publishState();
+
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: node.state.text
+                });
+
+                send(msg);
+
+                done();
             }
+        );
 
-            const fields = [
+        node.on(
+            "close",
+            function() {
 
-                "text",
-                "textColor",
-                "backgroundColor",
-                "fontSize",
-                "fontFamily",
-                "showLed",
-                "ledColor",
-                "ledSize",
-                "x",
-                "y"
-            ];
-
-            fields.forEach(field => {
-
-                const v = pick(field);
-
-                if (v !== undefined) {
-                    node.state[field] = v;
-                }
-            });
-
-            publishState();
-
-            node.status({
-                fill: "green",
-                shape: "dot",
-                text: node.state.text
-            });
-
-            send(msg);
-
-            done();
-        });
-
-        node.on("close", function() {
-
-            RED.comms.publish(
-                "workspace-banner/remove",
-                {
-                    id: node.id
-                },
-                true
-            );
-        });
+                RED.comms.publish(
+                    "workspace-banner/remove",
+                    {
+                        id: node.id
+                    },
+                    true
+                );
+            }
+        );
 
         publishState();
     }

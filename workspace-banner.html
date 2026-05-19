@@ -11,13 +11,27 @@
         );
     }
 
+    function currentWorkspaceId() {
+
+        try {
+
+            return RED.workspaces.active();
+
+        } catch(e) {
+
+            return null;
+        }
+    }
+
     function createBanner(id) {
 
         if (banners[id]) {
+
             return banners[id];
         }
 
-        const root = document.createElement("div");
+        const root =
+            document.createElement("div");
 
         root.style.position = "absolute";
 
@@ -42,19 +56,28 @@
 
         root.style.pointerEvents = "auto";
 
-        const led = document.createElement("div");
+        root.style.transition =
+            "all 0.15s ease";
+
+        root.style.backdropFilter =
+            "blur(4px)";
+
+        const led =
+            document.createElement("div");
 
         led.style.borderRadius = "50%";
 
         led.style.flexShrink = "0";
 
-        const text = document.createElement("div");
+        const text =
+            document.createElement("div");
 
         root.appendChild(led);
 
         root.appendChild(text);
 
-        workspaceContainer().appendChild(root);
+        workspaceContainer()
+            .appendChild(root);
 
         banners[id] = {
 
@@ -62,7 +85,9 @@
             led,
             text,
             x: 0,
-            y: 0
+            y: 0,
+            tabId: null,
+            currentTabOnly: true
         };
 
         enableDragging(id);
@@ -74,13 +99,29 @@
 
         const b = createBanner(id);
 
-        b.text.innerText = state.text || "";
+        const fontSize =
+            Number(state.fontSize || 24);
+
+        const paddingY =
+            Math.max(8, fontSize * 0.35);
+
+        const paddingX =
+            Math.max(14, fontSize * 0.6);
+
+        const radius =
+            Math.max(8, fontSize * 0.25);
+
+        const ledSize =
+            Number(state.ledSize || 16);
+
+        b.text.innerText =
+            state.text || "";
 
         b.text.style.color =
             state.textColor;
 
         b.text.style.fontSize =
-            state.fontSize + "px";
+            fontSize + "px";
 
         b.text.style.fontFamily =
             state.fontFamily;
@@ -88,33 +129,70 @@
         b.text.style.fontWeight =
             "bold";
 
+        b.text.style.lineHeight =
+            (fontSize * 1.15) + "px";
+
+        b.text.style.whiteSpace =
+            "nowrap";
+
         b.root.style.background =
             state.backgroundColor;
 
+        b.root.style.padding =
+            paddingY + "px " +
+            paddingX + "px";
+
+        b.root.style.borderRadius =
+            radius + "px";
+
+        b.root.style.minHeight =
+            (fontSize * 1.6) + "px";
+
+        b.root.style.alignItems =
+            "center";
+
         if (state.showLed) {
 
-            b.led.style.display = "block";
+            b.led.style.display =
+                "block";
 
             b.led.style.width =
-                state.ledSize + "px";
+                ledSize + "px";
 
             b.led.style.height =
-                state.ledSize + "px";
+                ledSize + "px";
+
+            b.led.style.minWidth =
+                ledSize + "px";
 
             b.led.style.background =
                 state.ledColor;
 
             b.led.style.boxShadow =
-                "0 0 12px " + state.ledColor;
+                "0 0 " +
+                (ledSize * 0.8) +
+                "px " +
+                state.ledColor;
 
         } else {
 
-            b.led.style.display = "none";
+            b.led.style.display =
+                "none";
         }
 
-        b.x = state.x || 0;
+        b.x =
+            Number(state.x || 0);
 
-        b.y = state.y || 0;
+        b.y =
+            Number(state.y || 0);
+
+        b.tabId =
+            state.tabId;
+
+        b.currentTabOnly =
+            state.currentTabOnly;
+
+        updateVisibility(id);
 
         updatePosition(id);
     }
@@ -130,6 +208,35 @@
 
         b.root.style.top =
             b.y + "px";
+    }
+
+    function updateVisibility(id) {
+
+        const b = banners[id];
+
+        if (!b) return;
+
+        if (!b.currentTabOnly) {
+
+            b.root.style.display =
+                "flex";
+
+            return;
+        }
+
+        const active =
+            currentWorkspaceId();
+
+        if (active === b.tabId) {
+
+            b.root.style.display =
+                "flex";
+
+        } else {
+
+            b.root.style.display =
+                "none";
+        }
     }
 
     function enableDragging(id) {
@@ -210,6 +317,15 @@
         }
     );
 
+    RED.events.on(
+        "workspace:change",
+        function() {
+
+            Object.keys(banners)
+                .forEach(updateVisibility);
+        }
+    );
+
 })();
 
 RED.nodes.registerType(
@@ -263,6 +379,10 @@ RED.nodes.registerType(
 
             bannerY: {
                 value: 100
+            },
+
+            currentTabOnly: {
+                value: true
             }
         },
 
@@ -281,73 +401,80 @@ RED.nodes.registerType(
 );
 </script>
 
-<script type="text/html"
-        data-template-name="workspace-banner">
+<script
+type="text/html"
+data-template-name="workspace-banner">
 
 <div class="form-row">
-<label>Name</label>
-<input type="text"
-       id="node-input-name">
+    <label>Name</label>
+    <input type="text"
+           id="node-input-name">
 </div>
 
 <div class="form-row">
-<label>Text</label>
-<input type="text"
-       id="node-input-text">
+    <label>Text</label>
+    <input type="text"
+           id="node-input-text">
 </div>
 
 <div class="form-row">
-<label>Text Color</label>
-<input type="text"
-       id="node-input-textColor">
+    <label>Text Color</label>
+    <input type="text"
+           id="node-input-textColor">
 </div>
 
 <div class="form-row">
-<label>Background</label>
-<input type="text"
-       id="node-input-backgroundColor">
+    <label>Background</label>
+    <input type="text"
+           id="node-input-backgroundColor">
 </div>
 
 <div class="form-row">
-<label>Font Size</label>
-<input type="number"
-       id="node-input-fontSize">
+    <label>Font Size</label>
+    <input type="number"
+           id="node-input-fontSize">
 </div>
 
 <div class="form-row">
-<label>Font</label>
-<input type="text"
-       id="node-input-fontFamily">
+    <label>Font</label>
+    <input type="text"
+           id="node-input-fontFamily">
 </div>
 
 <div class="form-row">
-<label>Show LED</label>
-<input type="checkbox"
-       id="node-input-showLed">
+    <label>Show LED</label>
+    <input type="checkbox"
+           id="node-input-showLed">
 </div>
 
 <div class="form-row">
-<label>LED Color</label>
-<input type="text"
-       id="node-input-ledColor">
+    <label>LED Color</label>
+    <input type="text"
+           id="node-input-ledColor">
 </div>
 
 <div class="form-row">
-<label>LED Size</label>
-<input type="number"
-       id="node-input-ledSize">
+    <label>LED Size</label>
+    <input type="number"
+           id="node-input-ledSize">
 </div>
 
 <div class="form-row">
-<label>X</label>
-<input type="number"
-       id="node-input-bannerX">
+    <label>X</label>
+    <input type="number"
+           id="node-input-bannerX">
 </div>
 
 <div class="form-row">
-<label>Y</label>
-<input type="number"
-       id="node-input-bannerY">
+    <label>Y</label>
+    <input type="number"
+           id="node-input-bannerY">
+</div>
+
+<div class="form-row">
+    <label>Current Tab Only</label>
+    <input type="checkbox"
+           id="node-input-currentTabOnly">
 </div>
 
 </script>
