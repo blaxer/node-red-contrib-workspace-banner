@@ -6,81 +6,53 @@
 
     function workspaceContainer() {
 
-        return document.querySelector(
-            "#red-ui-workspace-chart"
-        );
+        return document.querySelector("#red-ui-workspace-chart");
     }
 
     function currentWorkspaceId() {
 
         try {
-
             return RED.workspaces.active();
-
         } catch(e) {
-
             return null;
         }
     }
 
+    function clamp(min, val, max) {
+        return Math.max(min, Math.min(val, max));
+    }
+
     function createBanner(id) {
 
-        if (banners[id]) {
+        if (banners[id]) return banners[id];
 
-            return banners[id];
-        }
-
-        const root =
-            document.createElement("div");
+        const root = document.createElement("div");
 
         root.style.position = "absolute";
-
         root.style.display = "flex";
-
         root.style.alignItems = "center";
-
-        root.style.gap = "10px";
-
-        root.style.padding = "8px 14px";
-
-        root.style.borderRadius = "10px";
+        root.style.gap = "8px";
 
         root.style.zIndex = 1000;
-
         root.style.cursor = "move";
-
         root.style.userSelect = "none";
-
-        root.style.boxShadow =
-            "0 3px 10px rgba(0,0,0,0.45)";
-
         root.style.pointerEvents = "auto";
 
-        root.style.transition =
-            "all 0.15s ease";
+        root.style.boxShadow = "0 3px 10px rgba(0,0,0,0.45)";
+        root.style.transition = "all 0.12s ease";
 
-        root.style.backdropFilter =
-            "blur(4px)";
-
-        const led =
-            document.createElement("div");
-
+        const led = document.createElement("div");
         led.style.borderRadius = "50%";
-
         led.style.flexShrink = "0";
 
-        const text =
-            document.createElement("div");
+        const text = document.createElement("div");
 
         root.appendChild(led);
-
         root.appendChild(text);
 
-        workspaceContainer()
-            .appendChild(root);
+        workspaceContainer().appendChild(root);
 
         banners[id] = {
-
             root,
             led,
             text,
@@ -99,144 +71,88 @@
 
         const b = createBanner(id);
 
-        const fontSize =
-            Number(state.fontSize || 24);
+        const fontSize = Number(state.fontSize || 24);
 
-        const paddingY =
-            Math.max(8, fontSize * 0.35);
+        // 🔥 FIXED PADDING MODEL (tight + controlled growth)
+        const paddingY = clamp(4, fontSize * 0.25, 10);
+        const paddingX = clamp(8, fontSize * 0.45, 14);
 
-        const paddingX =
-            Math.max(14, fontSize * 0.6);
+        const radius = clamp(6, fontSize * 0.25, 14);
 
-        const radius =
-            Math.max(8, fontSize * 0.25);
+        const ledSize = Number(state.ledSize || 16);
 
-        const ledSize =
-            Number(state.ledSize || 16);
+        b.text.innerText = state.text || "";
 
-        b.text.innerText =
-            state.text || "";
+        b.text.style.color = state.textColor;
+        b.text.style.fontSize = fontSize + "px";
+        b.text.style.fontFamily = state.fontFamily;
+        b.text.style.fontWeight = "600";
+        b.text.style.lineHeight = (fontSize * 1.15) + "px";
+        b.text.style.whiteSpace = "nowrap";
 
-        b.text.style.color =
-            state.textColor;
-
-        b.text.style.fontSize =
-            fontSize + "px";
-
-        b.text.style.fontFamily =
-            state.fontFamily;
-
-        b.text.style.fontWeight =
-            "bold";
-
-        b.text.style.lineHeight =
-            (fontSize * 1.15) + "px";
-
-        b.text.style.whiteSpace =
-            "nowrap";
-
-        b.root.style.background =
-            state.backgroundColor;
+        b.root.style.background = state.backgroundColor;
 
         b.root.style.padding =
-            paddingY + "px " +
-            paddingX + "px";
+            paddingY + "px " + paddingX + "px";
 
         b.root.style.borderRadius =
             radius + "px";
 
         b.root.style.minHeight =
-            (fontSize * 1.6) + "px";
-
-        b.root.style.alignItems =
-            "center";
+            (fontSize * 1.4) + "px";
 
         if (state.showLed) {
 
-            b.led.style.display =
-                "block";
+            b.led.style.display = "block";
 
-            b.led.style.width =
-                ledSize + "px";
+            b.led.style.width = ledSize + "px";
+            b.led.style.height = ledSize + "px";
 
-            b.led.style.height =
-                ledSize + "px";
-
-            b.led.style.minWidth =
-                ledSize + "px";
-
-            b.led.style.background =
-                state.ledColor;
+            b.led.style.background = state.ledColor;
 
             b.led.style.boxShadow =
-                "0 0 " +
-                (ledSize * 0.8) +
-                "px " +
-                state.ledColor;
+                "0 0 " + (ledSize * 0.6) +
+                "px " + state.ledColor;
 
         } else {
-
-            b.led.style.display =
-                "none";
+            b.led.style.display = "none";
         }
 
-        b.x =
-            Number(state.x || 0);
+        b.x = Number(state.x || 0);
+        b.y = Number(state.y || 0);
 
-        b.y =
-            Number(state.y || 0);
-
-        b.tabId =
-            state.tabId;
-
-        b.currentTabOnly =
-            state.currentTabOnly;
+        b.tabId = state.tabId;
+        b.currentTabOnly = state.currentTabOnly;
 
         updateVisibility(id);
-
         updatePosition(id);
     }
 
     function updatePosition(id) {
 
         const b = banners[id];
-
         if (!b) return;
 
-        b.root.style.left =
-            b.x + "px";
-
-        b.root.style.top =
-            b.y + "px";
+        b.root.style.left = b.x + "px";
+        b.root.style.top = b.y + "px";
     }
 
     function updateVisibility(id) {
 
         const b = banners[id];
-
         if (!b) return;
 
         if (!b.currentTabOnly) {
-
-            b.root.style.display =
-                "flex";
-
+            b.root.style.display = "flex";
             return;
         }
 
-        const active =
-            currentWorkspaceId();
+        const active = currentWorkspaceId();
 
-        if (active === b.tabId) {
-
-            b.root.style.display =
-                "flex";
-
-        } else {
-
-            b.root.style.display =
-                "none";
-        }
+        b.root.style.display =
+            (active === b.tabId)
+                ? "flex"
+                : "none";
     }
 
     function enableDragging(id) {
@@ -244,237 +160,164 @@
         const b = banners[id];
 
         let dragging = false;
+        let ox = 0;
+        let oy = 0;
 
-        let offsetX = 0;
+        b.root.addEventListener("mousedown", (e) => {
 
-        let offsetY = 0;
+            dragging = true;
 
-        b.root.addEventListener(
-            "mousedown",
-            function(e) {
+            ox = e.clientX - b.x;
+            oy = e.clientY - b.y;
 
-                dragging = true;
+            e.preventDefault();
+            e.stopPropagation();
+        });
 
-                offsetX =
-                    e.clientX - b.x;
+        document.addEventListener("mousemove", (e) => {
 
-                offsetY =
-                    e.clientY - b.y;
+            if (!dragging) return;
 
-                e.preventDefault();
+            b.x = e.clientX - ox;
+            b.y = e.clientY - oy;
 
-                e.stopPropagation();
-            }
-        );
+            updatePosition(id);
+        });
 
-        document.addEventListener(
-            "mousemove",
-            function(e) {
-
-                if (!dragging) return;
-
-                b.x =
-                    e.clientX - offsetX;
-
-                b.y =
-                    e.clientY - offsetY;
-
-                updatePosition(id);
-            }
-        );
-
-        document.addEventListener(
-            "mouseup",
-            function() {
-
-                dragging = false;
-            }
-        );
+        document.addEventListener("mouseup", () => {
+            dragging = false;
+        });
     }
 
     RED.comms.subscribe(
         "workspace-banner/update",
-        function(topic, msg) {
-
-            applyState(
-                msg.id,
-                msg.state
-            );
-        }
+        (t, msg) => applyState(msg.id, msg.state)
     );
 
     RED.comms.subscribe(
         "workspace-banner/remove",
-        function(topic, msg) {
+        (t, msg) => {
 
             const b = banners[msg.id];
-
             if (!b) return;
 
             b.root.remove();
-
             delete banners[msg.id];
         }
     );
 
-    RED.events.on(
-        "workspace:change",
-        function() {
+    RED.events.on("workspace:change", () => {
 
-            Object.keys(banners)
-                .forEach(updateVisibility);
-        }
-    );
+        Object.keys(banners)
+            .forEach(updateVisibility);
+    });
 
 })();
 
-RED.nodes.registerType(
-    'workspace-banner',
-    {
-        category: 'display',
+RED.nodes.registerType('workspace-banner', {
 
-        color: '#4B8BBE',
+    category: 'display',
+    color: '#4B8BBE',
 
-        defaults: {
+    defaults: {
 
-            name: {
-                value: ""
-            },
+        name: { value: "" },
 
-            text: {
-                value: "Banner"
-            },
+        text: { value: "Banner" },
 
-            textColor: {
-                value: "#FFFFFF"
-            },
+        textColor: { value: "#FFFFFF" },
 
-            backgroundColor: {
-                value: "#222222"
-            },
+        backgroundColor: { value: "#222222" },
 
-            fontSize: {
-                value: 24
-            },
+        fontSize: { value: 24 },
 
-            fontFamily: {
-                value: "Arial"
-            },
+        fontFamily: { value: "Arial" },
 
-            showLed: {
-                value: true
-            },
+        showLed: { value: true },
 
-            ledColor: {
-                value: "#00FF00"
-            },
+        ledColor: { value: "#00FF00" },
 
-            ledSize: {
-                value: 16
-            },
+        ledSize: { value: 16 },
 
-            bannerX: {
-                value: 100
-            },
+        bannerX: { value: 100 },
 
-            bannerY: {
-                value: 100
-            },
+        bannerY: { value: 100 },
 
-            currentTabOnly: {
-                value: true
-            }
-        },
+        currentTabOnly: { value: true }
+    },
 
-        inputs: 1,
+    inputs: 1,
+    outputs: 1,
 
-        outputs: 1,
+    icon: "font-awesome/fa-television",
 
-        icon: "font-awesome/fa-television",
-
-        label: function() {
-
-            return this.name ||
-                   "workspace-banner";
-        }
+    label: function() {
+        return this.name || "workspace-banner";
     }
-);
+});
 </script>
 
-<script
-type="text/html"
-data-template-name="workspace-banner">
+<script type="text/html"
+        data-template-name="workspace-banner">
 
 <div class="form-row">
     <label>Name</label>
-    <input type="text"
-           id="node-input-name">
+    <input type="text" id="node-input-name">
 </div>
 
 <div class="form-row">
     <label>Text</label>
-    <input type="text"
-           id="node-input-text">
+    <input type="text" id="node-input-text">
 </div>
 
 <div class="form-row">
     <label>Text Color</label>
-    <input type="text"
-           id="node-input-textColor">
+    <input type="text" id="node-input-textColor">
 </div>
 
 <div class="form-row">
     <label>Background</label>
-    <input type="text"
-           id="node-input-backgroundColor">
+    <input type="text" id="node-input-backgroundColor">
 </div>
 
 <div class="form-row">
     <label>Font Size</label>
-    <input type="number"
-           id="node-input-fontSize">
+    <input type="number" id="node-input-fontSize">
 </div>
 
 <div class="form-row">
     <label>Font</label>
-    <input type="text"
-           id="node-input-fontFamily">
+    <input type="text" id="node-input-fontFamily">
 </div>
 
 <div class="form-row">
     <label>Show LED</label>
-    <input type="checkbox"
-           id="node-input-showLed">
+    <input type="checkbox" id="node-input-showLed">
 </div>
 
 <div class="form-row">
     <label>LED Color</label>
-    <input type="text"
-           id="node-input-ledColor">
+    <input type="text" id="node-input-ledColor">
 </div>
 
 <div class="form-row">
     <label>LED Size</label>
-    <input type="number"
-           id="node-input-ledSize">
+    <input type="number" id="node-input-ledSize">
 </div>
 
 <div class="form-row">
     <label>X</label>
-    <input type="number"
-           id="node-input-bannerX">
+    <input type="number" id="node-input-bannerX">
 </div>
 
 <div class="form-row">
     <label>Y</label>
-    <input type="number"
-           id="node-input-bannerY">
+    <input type="number" id="node-input-bannerY">
 </div>
 
 <div class="form-row">
     <label>Current Tab Only</label>
-    <input type="checkbox"
-           id="node-input-currentTabOnly">
+    <input type="checkbox" id="node-input-currentTabOnly">
 </div>
 
 </script>
