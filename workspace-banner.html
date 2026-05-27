@@ -221,7 +221,8 @@
         .catch(() => {});
 })();
 
-RED.nodes.registerType('workspace-banner', {
+if (!RED.nodes.type("workspace-banner")) {
+    RED.nodes.registerType('workspace-banner', {
 
     category: 'display',
     color: '#4B8BBE',
