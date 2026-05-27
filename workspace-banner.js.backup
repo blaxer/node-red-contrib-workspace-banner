@@ -81,12 +81,6 @@ module.exports = function(RED) {
             );
         });
 
-        RED.comms.subscribe("workspace-banner/request", (t, msg) => {
-            if (msg.request === "all" || !msg.request) {
-                publishState();
-            }
-        });
-
         publishState();
     }
 
