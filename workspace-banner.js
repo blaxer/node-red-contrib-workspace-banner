@@ -1,25 +1,40 @@
 module.exports = function(RED) {
+
     function WorkspaceBannerNode(config) {
+
         RED.nodes.createNode(this, config);
 
         const node = this;
 
         node.state = {
+
             text: config.text || "Banner",
+
             textColor: config.textColor || "#FFFFFF",
+
             backgroundColor: config.backgroundColor || "#222222",
+
             fontSize: Number(config.fontSize || 24),
+
             fontFamily: config.fontFamily || "Arial",
+
             showLed: config.showLed !== false,
+
             ledColor: config.ledColor || "#00FF00",
+
             ledSize: Number(config.ledSize || 16),
+
             x: Number(config.bannerX || 100),
+
             y: Number(config.bannerY || 100),
+
             tabId: node.z,
+
             currentTabOnly: config.currentTabOnly !== false
         };
 
         function publishState() {
+
             RED.comms.publish(
                 "workspace-banner/update",
                 {
@@ -31,6 +46,7 @@ module.exports = function(RED) {
         }
 
         node.on("input", function(msg, send, done) {
+
             const p = msg.payload || {};
 
             function pick(name) {
@@ -53,8 +69,11 @@ module.exports = function(RED) {
             ];
 
             fields.forEach(f => {
+
                 const v = pick(f);
+
                 if (v !== undefined) {
+
                     node.state[f] = v;
                 }
             });
@@ -71,7 +90,8 @@ module.exports = function(RED) {
             done();
         });
 
-   node.on("close", function() {
+        node.on("close", function() {
+
             RED.comms.publish(
                 "workspace-banner/remove",
                 {
@@ -82,18 +102,10 @@ module.exports = function(RED) {
         });
 
         publishState();
-    });
+    }
 
-    RED.httpAdmin.get("/workspace-banner/state", RED.auth.needsPermission("workspace-banner.read"), (req, res) => {
-        const states = {};
-        RED.nodes.getNodeIds().forEach((nodeId) => {
-            const node = RED.nodes.getNode(nodeId);
-            if (node && node.type === "workspace-banner" && node.state) {
-                states[nodeId] = node.state;
-            }
-        });
-        res.json(states);
-    });
-
-    RED.nodes.registerType("workspace-banner", WorkspaceBannerNode);
+    RED.nodes.registerType(
+        "workspace-banner",
+        WorkspaceBannerNode
+    );
 };
