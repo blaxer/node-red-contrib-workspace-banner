@@ -40,6 +40,10 @@ npm install @earthcompatible/node-red-contrib-workspace-banner
 }
 ```
 
+### Usage
+
+Connect an **inject** node to the workspace-banner node. Set the inject node's payload to a JSON object with the desired banner properties.
+
 ## Message Properties
 
 | Property | Description |
