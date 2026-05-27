@@ -206,20 +206,12 @@
         }
     );
 
-   RED.events.on("workspace:change", () => {
+    RED.events.on("workspace:change", () => {
+
         Object.keys(banners)
             .forEach(updateVisibility);
     });
 
-    RED.comms.subscribe("workspace-banner/refresh", (t, msg) => {
-        if (msg.id && msg.state) {
-            applyState(msg.id, msg.state);
-        }
-    });
-
-    RED.events.on("view:ready", () => {
-        RED.comms.publish("workspace-banner/request", {}, true);
-    });
 })();
 
 RED.nodes.registerType('workspace-banner', {
