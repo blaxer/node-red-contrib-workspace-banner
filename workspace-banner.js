@@ -71,24 +71,11 @@ module.exports = function(RED) {
             done();
         });
 
-        node.on("close", function() {
-            RED.comms.publish(
-                "workspace-banner/remove",
-                {
-                    id: node.id
-                },
-                true
-            );
-        });
-
-        RED.comms.subscribe("workspace-banner/request", (t, msg) => {
-            if (msg.request === "all" || !msg.request) {
-                publishState();
-            }
-        });
-
-        publishState();
-    }
+         RED.nodes.registerType(
+        "workspace-banner",
+        WorkspaceBannerNode
+    );
+};
 
     RED.nodes.registerType(
         "workspace-banner",

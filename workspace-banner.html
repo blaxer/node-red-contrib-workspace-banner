@@ -210,14 +210,6 @@
         Object.keys(banners)
             .forEach(updateVisibility);
     });
-
-    let hasRequestedState = false;
-    RED.events.on("view:ready", () => {
-        if (!hasRequestedState) {
-            hasRequestedState = true;
-            RED.comms.publish("workspace-banner/request", { request: "all" }, true);
-        }
-    });
 })();
 
 RED.nodes.registerType('workspace-banner', {
