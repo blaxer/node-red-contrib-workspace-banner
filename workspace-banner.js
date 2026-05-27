@@ -71,10 +71,18 @@ module.exports = function(RED) {
             done();
         });
 
-  RED.nodes.registerType(
-        "workspace-banner",
-        WorkspaceBannerNode
-    );
+   node.on("close", function() {
+            RED.comms.publish(
+                "workspace-banner/remove",
+                {
+                    id: node.id
+                },
+                true
+            );
+        });
+
+        publishState();
+    });
 
     RED.httpAdmin.get("/workspace-banner/state", RED.auth.needsPermission("workspace-banner.read"), (req, res) => {
         const states = {};
@@ -86,10 +94,6 @@ module.exports = function(RED) {
         });
         res.json(states);
     });
-};
 
-    RED.nodes.registerType(
-        "workspace-banner",
-        WorkspaceBannerNode
-    );
+    RED.nodes.registerType("workspace-banner", WorkspaceBannerNode);
 };
