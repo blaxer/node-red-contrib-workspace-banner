@@ -210,6 +210,15 @@
         Object.keys(banners)
             .forEach(updateVisibility);
     });
+
+    fetch("/workspace-banner/state")
+        .then(r => r.json())
+        .then((states) => {
+            Object.keys(states).forEach((id) => {
+                applyState(id, states[id]);
+            });
+        })
+        .catch(() => {});
 })();
 
 RED.nodes.registerType('workspace-banner', {
