@@ -71,10 +71,21 @@ module.exports = function(RED) {
             done();
         });
 
-         RED.nodes.registerType(
+  RED.nodes.registerType(
         "workspace-banner",
         WorkspaceBannerNode
     );
+
+    RED.httpAdmin.get("/workspace-banner/state", RED.auth.needsPermission("workspace-banner.read"), (req, res) => {
+        const states = {};
+        RED.nodes.getNodeIds().forEach((nodeId) => {
+            const node = RED.nodes.getNode(nodeId);
+            if (node && node.type === "workspace-banner" && node.state) {
+                states[nodeId] = node.state;
+            }
+        });
+        res.json(states);
+    });
 };
 
     RED.nodes.registerType(
