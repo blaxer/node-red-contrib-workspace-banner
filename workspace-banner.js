@@ -101,7 +101,7 @@ module.exports = function(RED) {
             );
         });
 
-        publishState();
+        setTimeout(publishState, 500);
     }
 
     RED.nodes.registerType(
