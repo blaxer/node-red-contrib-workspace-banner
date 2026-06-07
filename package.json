@@ -1,6 +1,6 @@
 {
-  "name": "@earthcompatible/node-red-contrib-workspace-banner",
-  "version": "1.0.1",
+  "name": "@blaxer/node-red-contrib-workspace-banner",
+  "version": "1.0.2",
   "description": "Workspace banner and status overlay node for Node-RED editor",
   "keywords": [
     "node-red",
@@ -18,12 +18,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/earthcompatible/node-red-contrib-workspace-banner.git"
+    "url": "git+https://github.com/blaxer/node-red-contrib-workspace-banner.git"
   },
   "bugs": {
-    "url": "https://github.com/earthcompatible/node-red-contrib-workspace-banner/issues"
+    "url": "https://github.com/blaxer/node-red-contrib-workspace-banner/issues"
   },
-  "homepage": "https://github.com/earthcompatible/node-red-contrib-workspace-banner#readme",
+  "homepage": "https://github.com/blaxer/node-red-contrib-workspace-banner#readme",
   "node-red": {
     "version": ">=3.0.0",
     "nodes": {
