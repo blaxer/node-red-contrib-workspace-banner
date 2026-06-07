@@ -1,5 +1,5 @@
 {
-  "name": "@blaxer/node-red-contrib-workspace-banner",
+  "name": "@earthcompatible/node-red-contrib-workspace-banner",
   "version": "1.0.2",
   "description": "Workspace banner and status overlay node for Node-RED editor",
   "keywords": [
@@ -14,7 +14,8 @@
   ],
   "license": "MIT",
   "author": {
-    "name": "Blaxer"
+    "name": "Jamie Ferrara",
+    "email": "jferrara@earthcompatible.com"
   },
   "repository": {
     "type": "git",
