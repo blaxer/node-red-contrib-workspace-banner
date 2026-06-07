@@ -65,7 +65,7 @@ Connect an **inject** node to the workspace-banner node. Set the inject node's p
 
 ### Initial Status
 
-![Inital Status](docs/images/Banner-init.png)
+![Initial Status](docs/images/Banner-init.png)
 
 ---
 
