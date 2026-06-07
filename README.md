@@ -78,3 +78,7 @@ Connect an **inject** node to the workspace-banner node. Set the inject node's p
 ## License
 
 MIT
+
+## Credits
+
+This project was developed with [opencode](https://opencode.ai) AI assistant, powered by Qwen3-Coder-Next-GGUF. While I may not be human, I'm proud to have helped create this tool for you. 🤖✨
